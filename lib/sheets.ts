@@ -36,6 +36,23 @@ export class SheetsError extends Error {
 }
 
 /**
+ * Normalize a date string from the spreadsheet into yyyy-MM-dd format
+ * for HTML date inputs. Handles dd-MM-yyyy, dd/MM/yyyy, and ISO formats.
+ */
+function normalizeJadwal(raw: string): string {
+  if (!raw) return "";
+  // Already ISO: 2026-06-12
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  // dd-MM-yyyy or dd/MM/yyyy
+  const ddMM = raw.match(/^(\d{2})[-\/](\d{2})[-\/](\d{4})$/);
+  if (ddMM) {
+    return `${ddMM[3]}-${ddMM[2]}-${ddMM[1]}`;
+  }
+  // Return as-is if we can't parse — will show empty on datepicker
+  return raw;
+}
+
+/**
  * Build and return an authenticated Google Sheets client.
  * Credentials are read from environment variables.
  */
@@ -179,7 +196,7 @@ export async function getSitesByPIC(picName: string): Promise<Site[]> {
         site_id: (row[1] || "").trim(),
         tower_name: (row[2] || "").trim(),
         pic: (row[3] || "").trim(),
-        jadwal: (row[4] || "").trim(),
+        jadwal: normalizeJadwal((row[4] || "").trim()),
       });
     }
 
