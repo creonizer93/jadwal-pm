@@ -9,18 +9,37 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: [
+          "SF Pro Display",
+          "SF Pro Text",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "'Segoe UI'",
+          "Roboto",
+          "'Helvetica Neue'",
+          "Arial",
+          "sans-serif",
+        ],
       },
       colors: {
-        // PRD-defined palette
-        "app-bg": "#f4f6f9",
-        "app-surface": "#ffffff",
-        "app-accent": "#1d72f5",
-        "app-success": "#0ea56b",
-        "app-warning": "#f59e0b",
-        "app-danger": "#e53935",
-        "app-text": "#111827",
-        "app-text2": "#6b7280",
+        // iOS-inspired palette
+        "ios-bg": "#f2f2f7",
+        "ios-surface": "#ffffff",
+        "ios-accent": "#007aff",
+        "ios-success": "#34c759",
+        "ios-warning": "#ff9500",
+        "ios-danger": "#ff3b30",
+        "ios-text": "#1c1c1e",
+        "ios-text2": "#8e8e93",
+        "ios-separator": "rgba(60,60,67,0.12)",
+        // Glass surface tones
+        "glass-light": "rgba(255,255,255,0.72)",
+        "glass-dark": "rgba(28,28,30,0.72)",
+      },
+      backdropBlur: {
+        glass: "20px",
+        "glass-sm": "10px",
+        "glass-lg": "30px",
       },
     },
   },

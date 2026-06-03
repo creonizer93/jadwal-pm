@@ -51,7 +51,6 @@ export default function PICPage({
         const data: Site[] = await res.json();
         setSites(data);
 
-        // Initialize updates with existing jadwal values
         const init: Record<number, string> = {};
         for (const s of data) {
           if (s.jadwal) init[s.rowIndex] = s.jadwal;
@@ -125,47 +124,44 @@ export default function PICPage({
     }
   };
 
-  // Group by type
   const mrSites = sites.filter((s) => s.type === "MR");
   const vwSites = sites.filter((s) => s.type === "VW");
 
-  // Find first unfilled for auto-scroll
   const firstUnfilled = sites.find(
     (s) => (updates[s.rowIndex] || s.jadwal || "").trim() === "",
   );
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f4f6f9]">
-        <header className="bg-white px-4 pt-4 pb-3 shadow-sm">
+      <div className="min-h-screen bg-[#f2f2f7]">
+        <header className="glass-nav px-4 pt-4 pb-3">
           <div className="mx-auto max-w-md">
             <div className="flex items-center justify-between">
-              <div className="h-5 w-20 animate-pulse rounded bg-gray-200" />
-              <div className="h-5 w-32 animate-pulse rounded bg-gray-200" />
+              <div className="h-5 w-20 animate-pulse rounded-full bg-[rgba(118,118,128,0.12)]" />
+              <div className="h-5 w-32 animate-pulse rounded-full bg-[rgba(118,118,128,0.12)]" />
             </div>
-            <div className="flex items-center justify-center gap-3 py-4">
-              <div className="h-8 w-24 animate-pulse rounded-full bg-gray-200" />
-              <div className="h-px w-6 bg-gray-200" />
-              <div className="h-8 w-32 animate-pulse rounded-full bg-gray-200" />
+            <div className="flex justify-center py-2">
+              <div className="h-8 w-48 animate-pulse rounded-lg bg-[rgba(118,118,128,0.12)]" />
             </div>
           </div>
         </header>
         <div className="mx-auto max-w-md px-4">
-          <div className="mt-3 flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm">
-            <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200" />
+          <div className="glass-card mt-3 flex items-center gap-3 p-4">
+            <div className="h-11 w-11 animate-pulse rounded-full bg-[rgba(118,118,128,0.12)]" />
             <div className="flex-1">
-              <div className="mb-1 h-4 w-32 animate-pulse rounded bg-gray-200" />
-              <div className="h-3 w-20 animate-pulse rounded bg-gray-100" />
+              <div className="mb-1 h-4 w-32 animate-pulse rounded bg-[rgba(118,118,128,0.12)]" />
+              <div className="h-3 w-20 animate-pulse rounded bg-[rgba(118,118,128,0.08)]" />
             </div>
           </div>
           <div className="mt-4 space-y-2">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center gap-3 rounded-xl border-l-4 border-gray-200 bg-white p-4 shadow-sm">
+              <div key={i} className="glass-card flex items-center gap-3 p-4">
+                <div className="h-10 w-1 animate-pulse rounded-full bg-[rgba(118,118,128,0.12)]" />
                 <div className="flex-1">
-                  <div className="mb-1 h-4 w-40 animate-pulse rounded bg-gray-200" />
-                  <div className="h-3 w-24 animate-pulse rounded bg-gray-100" />
+                  <div className="mb-1 h-4 w-40 animate-pulse rounded bg-[rgba(118,118,128,0.12)]" />
+                  <div className="h-3 w-24 animate-pulse rounded bg-[rgba(118,118,128,0.08)]" />
                 </div>
-                <div className="h-9 w-28 animate-pulse rounded-lg bg-gray-200" />
+                <div className="h-9 w-28 animate-pulse rounded-xl bg-[rgba(118,118,128,0.12)]" />
               </div>
             ))}
           </div>
@@ -176,13 +172,15 @@ export default function PICPage({
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="rounded-xl bg-red-50 p-6 text-center shadow-sm">
-          <div className="mb-2 text-2xl">⚠️</div>
-          <p className="text-sm font-semibold text-[#e53935]">{error}</p>
+      <div className="flex min-h-screen items-center justify-center bg-[#f2f2f7] p-4">
+        <div className="glass-card p-6 text-center">
+          <div className="mb-2 text-3xl">⚠️</div>
+          <p className="text-[15px] font-[590] tracking-[-0.23px] text-[#ff3b30]">
+            {error}
+          </p>
           <button
             onClick={() => router.push("/")}
-            className="mt-4 rounded-lg bg-[#1d72f5] px-4 py-2 text-sm text-white"
+            className="btn-ios btn-ios-primary mt-4"
           >
             Kembali ke Dashboard
           </button>
@@ -192,55 +190,59 @@ export default function PICPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#f4f6f9] pb-24">
+    <div className="min-h-screen bg-[#f2f2f7] pb-24">
       {/* Header */}
-      <header className="bg-white px-4 pt-4 pb-3 shadow-sm">
+      <header className="glass-nav px-4 pt-4 pb-3">
         <div className="mx-auto flex max-w-md items-center justify-between">
           <button
             onClick={() => router.push("/")}
-            className="flex items-center gap-1 text-sm text-[#6b7280] hover:text-[#111827]"
+            className="flex items-center gap-1 text-[15px] font-medium tracking-[-0.23px] text-[#007aff] transition-opacity active:opacity-60"
           >
             ← Kembali
           </button>
-          <h1 className="text-sm font-semibold text-[#111827]">Pengisian Jadwal</h1>
+          <h1 className="text-[15px] font-[590] tracking-[-0.23px] text-[#1c1c1e]">
+            Pengisian Jadwal
+          </h1>
         </div>
-        <StepPills activeStep={2} />
+        <div className="py-2">
+          <StepPills activeStep={2} />
+        </div>
       </header>
 
       {/* PIC Bar */}
       <div className="mx-auto max-w-md px-4">
-        <div className="mt-3 flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#1d72f5] text-sm font-bold text-white">
+        <div className="glass-card mt-3 flex items-center gap-3 p-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#007aff] text-[13px] font-[590] text-white">
             {getInitials(picName)}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold text-[#111827]">
+            <div className="truncate text-[15px] font-[590] tracking-[-0.23px] text-[#1c1c1e]">
               {picName}
             </div>
-            <div className="mt-0.5 text-xs text-[#6b7280]">
+            <div className="mt-0.5 text-[13px] tracking-[-0.08px] text-[#8e8e93]">
               {totalSites} site
             </div>
           </div>
         </div>
 
-        {/* Alert if already some filled */}
+        {/* Alert */}
         {filledCount > 0 && (
-          <div className="mt-3 rounded-xl bg-amber-50 p-3 text-sm text-[#92400e]">
+          <div className="glass-card mt-3 border-[#ff9500]/20 bg-[#ff9500]/8 p-3 text-[13px] tracking-[-0.08px] text-[#cc7a00]">
             ⚠️ Sudah ada {filledCount} jadwal yang pernah diisi. Anda bisa
             mengubah tanggal jadwal yang sudah ada.
           </div>
         )}
 
         {/* Progress */}
-        <div className="mt-4">
+        <div className="glass-card mt-4 p-4">
           <ProgressBar filled={filledFromUpdates} total={totalSites} />
         </div>
 
         {/* MR Sites */}
         {mrSites.length > 0 && (
           <div className="mt-4">
-            <h2 className="mb-2 text-sm font-bold text-[#111827]">
-              Maintenance & Repair (MR)
+            <h2 className="mb-2 text-[13px] font-[590] tracking-[-0.08px] text-[#8e8e93] uppercase">
+              Maintenance & Repair
             </h2>
             <div className="space-y-2">
               {mrSites.map((site) => (
@@ -264,8 +266,8 @@ export default function PICPage({
         {/* VW Sites */}
         {vwSites.length > 0 && (
           <div className="mt-6">
-            <h2 className="mb-2 text-sm font-bold text-[#111827]">
-              Visual Walk (VW)
+            <h2 className="mb-2 text-[13px] font-[590] tracking-[-0.08px] text-[#8e8e93] uppercase">
+              Visual Walk
             </h2>
             <div className="space-y-2">
               {vwSites.map((site) => (
@@ -287,9 +289,9 @@ export default function PICPage({
         )}
 
         {sites.length === 0 && (
-          <div className="mt-6 rounded-xl bg-white p-8 text-center shadow-sm">
+          <div className="glass-card mt-6 p-8 text-center">
             <div className="text-4xl">🏗️</div>
-            <p className="mt-2 text-sm text-[#6b7280]">
+            <p className="mt-2 text-[15px] tracking-[-0.23px] text-[#8e8e93]">
               Tidak ada site untuk PIC ini.
             </p>
           </div>
@@ -298,13 +300,13 @@ export default function PICPage({
 
       {/* Success notification */}
       {saveSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="rounded-xl bg-white p-6 shadow-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="glass-card mx-4 max-w-sm p-6 text-center">
             <div className="mb-2 text-3xl">✅</div>
-            <p className="text-sm font-semibold text-[#0ea56b]">
+            <p className="text-[15px] font-[590] tracking-[-0.23px] text-[#34c759]">
               Jadwal berhasil disimpan!
             </p>
-            <p className="mt-1 text-xs text-[#6b7280]">
+            <p className="mt-1 text-[13px] tracking-[-0.08px] text-[#8e8e93]">
               Mengalihkan ke dashboard...
             </p>
           </div>
@@ -313,10 +315,10 @@ export default function PICPage({
 
       {/* Saving overlay */}
       {saving && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="rounded-xl bg-white p-6 shadow-lg">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#1d72f5] border-t-transparent" />
-            <p className="mt-3 text-sm font-semibold text-[#111827]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="glass-card p-6 text-center">
+            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-[3px] border-[#007aff] border-t-transparent" />
+            <p className="text-[15px] font-[590] tracking-[-0.23px] text-[#1c1c1e]">
               Menyimpan...
             </p>
           </div>
@@ -325,20 +327,21 @@ export default function PICPage({
 
       {/* Confirmation dialog */}
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="glass-card w-full max-w-sm p-6">
             <div className="mb-4 text-center text-4xl">📋</div>
-            <h3 className="mb-1 text-center text-base font-bold text-[#111827]">
+            <h3 className="mb-1 text-center text-[17px] font-[590] tracking-[-0.23px] text-[#1c1c1e]">
               Simpan Jadwal?
             </h3>
-            <p className="mb-6 text-center text-sm text-[#6b7280]">
-              {totalSites} jadwal akan ditulis ke spreadsheet. <br />
+            <p className="mb-6 text-center text-[15px] tracking-[-0.23px] text-[#8e8e93]">
+              {totalSites} jadwal akan ditulis ke spreadsheet.
+              <br />
               Data lama akan ditimpa.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 rounded-xl border border-gray-200 bg-white py-3 text-sm font-semibold text-[#6b7280] transition-all active:scale-[0.98] hover:bg-gray-50"
+                className="btn-ios btn-ios-outline flex-1"
               >
                 Batal
               </button>
@@ -347,7 +350,7 @@ export default function PICPage({
                   setShowConfirm(false);
                   handleSave();
                 }}
-                className="flex-1 rounded-xl bg-[#0ea56b] py-3 text-sm font-bold text-white transition-all active:scale-[0.98] hover:bg-[#0c8f5c]"
+                className="btn-ios btn-ios-primary flex-1"
               >
                 Ya, Simpan
               </button>

@@ -80,47 +80,51 @@ export default function HomePage() {
   const totalSites = pics.reduce((sum, p) => sum + p.total, 0);
   const doneSites = pics.reduce((sum, p) => sum + p.done, 0);
   const submittedCount = pics.filter((p) => p.submitted).length;
-  const completeNotSubmittedCount = pics.filter((p) => p.complete && !p.submitted).length;
+  const completeNotSubmittedCount = pics.filter(
+    (p) => p.complete && !p.submitted,
+  ).length;
   const incompleteCount = pics.filter((p) => !p.complete).length;
 
   const incompletePICs = pics.filter((p) => !p.complete);
-  const completeNotSubmittedPICs = pics.filter((p) => p.complete && !p.submitted);
+  const completeNotSubmittedPICs = pics.filter(
+    (p) => p.complete && !p.submitted,
+  );
   const submittedPICs = pics.filter((p) => p.submitted);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f4f6f9] pb-4">
-        <header className="bg-white px-4 pt-4 pb-3 shadow-sm">
+      <div className="min-h-screen bg-[#f2f2f7]">
+        <header className="glass-nav px-4 pt-4 pb-3">
           <div className="mx-auto max-w-md">
-            <div className="mx-auto mb-3 h-6 w-48 animate-pulse rounded bg-gray-200" />
-            <div className="flex items-center justify-center gap-3 py-4">
-              <div className="h-8 w-24 animate-pulse rounded-full bg-gray-200" />
-              <div className="h-px w-6 bg-gray-200" />
-              <div className="h-8 w-32 animate-pulse rounded-full bg-gray-200" />
+            <div className="mx-auto mb-3 h-6 w-48 animate-pulse rounded-full bg-[rgba(118,118,128,0.12)]" />
+            <div className="flex justify-center py-2">
+              <div className="h-8 w-48 animate-pulse rounded-lg bg-[rgba(118,118,128,0.12)]" />
             </div>
           </div>
         </header>
-
         <div className="mx-auto mt-4 max-w-md px-4">
-          <div className="mb-4 grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-white p-4 shadow-sm">
-              <div className="mx-auto mb-1 h-8 w-12 animate-pulse rounded bg-gray-200" />
-              <div className="mx-auto h-3 w-16 animate-pulse rounded bg-gray-100" />
-            </div>
-            <div className="rounded-xl bg-white p-4 shadow-sm">
-              <div className="mx-auto mb-1 h-8 w-12 animate-pulse rounded bg-gray-200" />
-              <div className="mx-auto h-3 w-16 animate-pulse rounded bg-gray-100" />
-            </div>
-          </div>
-
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="mb-2 flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm">
-              <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200" />
-              <div className="flex-1">
-                <div className="mb-1 h-4 w-32 animate-pulse rounded bg-gray-200" />
-                <div className="h-3 w-24 animate-pulse rounded bg-gray-100" />
+          <div className="mb-4 grid grid-cols-3 gap-2">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="glass-card animate-pulse p-3 text-center"
+              >
+                <div className="mx-auto mb-1 h-6 w-8 rounded bg-[rgba(118,118,128,0.12)]" />
+                <div className="mx-auto h-3 w-16 rounded bg-[rgba(118,118,128,0.08)]" />
               </div>
-              <div className="h-6 w-20 animate-pulse rounded-full bg-gray-200" />
+            ))}
+          </div>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="glass-card mb-2 flex items-center gap-3 p-4"
+            >
+              <div className="h-11 w-11 animate-pulse rounded-full bg-[rgba(118,118,128,0.12)]" />
+              <div className="flex-1">
+                <div className="mb-1 h-4 w-32 animate-pulse rounded bg-[rgba(118,118,128,0.12)]" />
+                <div className="h-3 w-24 animate-pulse rounded bg-[rgba(118,118,128,0.08)]" />
+              </div>
+              <div className="h-6 w-16 animate-pulse rounded-full bg-[rgba(118,118,128,0.12)]" />
             </div>
           ))}
         </div>
@@ -130,17 +134,19 @@ export default function HomePage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="rounded-xl bg-red-50 p-6 text-center shadow-sm">
-          <div className="mb-2 text-2xl">⚠️</div>
-          <p className="text-sm font-semibold text-[#e53935]">{error}</p>
-          <p className="mt-2 text-xs text-[#6b7280]">
+      <div className="flex min-h-screen items-center justify-center bg-[#f2f2f7] p-4">
+        <div className="glass-card p-6 text-center">
+          <div className="mb-2 text-3xl">⚠️</div>
+          <p className="text-[15px] font-[590] tracking-[-0.23px] text-[#ff3b30]">
+            {error}
+          </p>
+          <p className="mt-2 text-[13px] tracking-[-0.08px] text-[#8e8e93]">
             Periksa konfigurasi Google Service Account dan Spreadsheet ID di
             file .env.local
           </p>
           <button
             onClick={() => fetchData()}
-            className="mt-4 rounded-lg bg-[#1d72f5] px-4 py-2 text-sm text-white"
+            className="btn-ios btn-ios-primary mt-4"
           >
             Coba Lagi
           </button>
@@ -153,7 +159,7 @@ export default function HomePage() {
 
   return (
     <div
-      className="min-h-screen bg-[#f4f6f9] pb-4"
+      className="min-h-screen bg-[#f2f2f7] pb-4"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -165,7 +171,7 @@ export default function HomePage() {
           style={{ height: pullDist, opacity: pullDist / 80 }}
         >
           <div
-            className={`h-6 w-6 rounded-full border-2 border-[#1d72f5] ${
+            className={`h-6 w-6 rounded-full border-2 border-[#007aff] ${
               pullDist > 50 ? "animate-spin border-t-transparent" : "border-b-transparent"
             }`}
           />
@@ -174,128 +180,108 @@ export default function HomePage() {
 
       {/* Refresh indicator */}
       {refreshing && (
-        <div className="fixed left-1/2 top-2 z-50 -translate-x-1/2 rounded-full bg-[#1d72f5] px-4 py-1.5 text-xs font-semibold text-white shadow-lg">
+        <div className="fixed left-1/2 top-2 z-50 -translate-x-1/2 rounded-full bg-[#007aff] px-4 py-1.5 text-[12px] font-[590] text-white shadow-lg">
           ↻ Memperbarui...
         </div>
       )}
 
       {/* Header */}
-      <header className="bg-white px-4 pt-4 pb-3 shadow-sm">
+      <header className="glass-nav px-4 pt-4 pb-3">
         <div className="mx-auto max-w-md">
           <div className="flex items-center justify-between">
-            <h1 className="text-center text-lg font-bold text-[#111827]">
+            <h1 className="text-[20px] font-[590] tracking-[-0.45px] text-[#1c1c1e]">
               {title}
             </h1>
             <div className="flex items-center gap-1">
               <button
                 onClick={handleExport}
-                className="rounded-lg bg-[#0ea56b] px-3 py-1.5 text-xs font-semibold text-white transition-all active:scale-95 hover:bg-[#0c8f5c]"
+                className="btn-ios btn-ios-outline !px-4 !py-1.5 !text-[12px]"
               >
                 Export
               </button>
               <button
                 onClick={() => fetchData(true)}
                 disabled={refreshing}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-[#6b7280] transition-all active:scale-90 hover:bg-gray-200 disabled:opacity-50"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(118,118,128,0.08)] text-[15px] text-[#8e8e93] transition-all active:scale-90 hover:bg-[rgba(118,118,128,0.12)] disabled:opacity-50"
                 aria-label="Refresh"
               >
                 ↻
               </button>
             </div>
           </div>
-          <StepPills activeStep={1} />
+          <div className="py-2">
+            <StepPills activeStep={1} />
+          </div>
         </div>
       </header>
 
-      {/* Stats Cards */}
+      {/* Content */}
       <div className="mx-auto mt-4 max-w-md px-4">
-        {/* Overall progress bar */}
-        <div className="mb-4 rounded-xl bg-white p-4 shadow-sm">
+        {/* Overall progress */}
+        <div className="glass-card mb-4 p-4">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#6b7280]">
+            <span className="text-[13px] font-medium tracking-[-0.08px] text-[#8e8e93]">
               Progress Submit ke Oneflux
             </span>
-            <span className="text-xs font-bold text-[#111827]">
+            <span className="text-[13px] font-[590] tracking-[-0.08px] text-[#1c1c1e]">
               {doneSites}/{totalSites} ({donePct}%)
             </span>
           </div>
-          <div className="h-3 overflow-hidden rounded-full bg-gray-200">
+          <div className="h-1.5 overflow-hidden rounded-full bg-[rgba(118,118,128,0.12)]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#0ea56b] to-[#06d6a0] transition-all duration-700"
+              className="h-full rounded-full bg-gradient-to-r from-[#34c759] to-[#30d158] transition-all duration-700"
               style={{ width: `${donePct}%` }}
             />
           </div>
         </div>
 
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          <div className="rounded-xl bg-white p-3 text-center shadow-sm">
-            <div className="text-xl font-bold text-[#ef4444]">
-              {incompleteCount}
+        {/* Stats */}
+        <div className="segment-control mb-5 grid w-full grid-cols-3 !bg-transparent !p-0">
+          {[
+            { count: incompleteCount, label: "Belum Complete", color: "#ff3b30" },
+            { count: completeNotSubmittedCount, label: "Complete", color: "#ff9500" },
+            { count: submittedCount, label: "Disubmit", color: "#34c759" },
+          ].map((s, i) => (
+            <div key={i} className="glass-card mx-1 p-3 text-center">
+              <div
+                className="text-[22px] font-[590] tracking-[-0.35px]"
+                style={{ color: s.color }}
+              >
+                {s.count}
+              </div>
+              <div className="text-[11px] font-medium tracking-[-0.06px] text-[#8e8e93]">
+                {s.label}
+              </div>
             </div>
-            <div className="text-[10px] leading-tight text-[#6b7280]">Belum Complete</div>
-          </div>
-          <div className="rounded-xl bg-white p-3 text-center shadow-sm">
-            <div className="text-xl font-bold text-[#f59e0b]">
-              {completeNotSubmittedCount}
-            </div>
-            <div className="text-[10px] leading-tight text-[#6b7280]">Complete</div>
-          </div>
-          <div className="rounded-xl bg-white p-3 text-center shadow-sm">
-            <div className="text-xl font-bold text-[#0ea56b]">
-              {submittedCount}
-            </div>
-            <div className="text-[10px] leading-tight text-[#6b7280]">Disubmit</div>
-          </div>
+          ))}
         </div>
 
-        {/* Belum Complete */}
-        {incompletePICs.length > 0 && (
-          <div className="mb-4">
-            <h2 className="mb-2 text-sm font-semibold text-[#6b7280]">
-              PIC — Belum Complete
-            </h2>
-            <div className="space-y-2">
-              {incompletePICs.map((pic) => (
-                <PICItem key={pic.name} {...pic} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Complete (belum disubmit) */}
-        {completeNotSubmittedPICs.length > 0 && (
-          <div className="mb-4">
-            <h2 className="mb-2 text-sm font-semibold text-[#6b7280]">
-              PIC — Complete
-            </h2>
-            <div className="space-y-2">
-              {completeNotSubmittedPICs.map((pic) => (
-                <PICItem key={pic.name} {...pic} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Disubmit */}
-        {submittedPICs.length > 0 && (
-          <div>
-            <h2 className="mb-2 text-sm font-semibold text-[#6b7280]">
-              PIC — Disubmit
-            </h2>
-            <div className="space-y-2">
-              {submittedPICs.map((pic) => (
-                <PICItem key={pic.name} {...pic} />
-              ))}
-            </div>
-          </div>
+        {/* Sections */}
+        {[
+          { pics: incompletePICs, label: "Belum Complete" },
+          { pics: completeNotSubmittedPICs, label: "Complete" },
+          { pics: submittedPICs, label: "Disubmit" },
+        ].map(
+          (section) =>
+            section.pics.length > 0 && (
+              <div key={section.label} className="mb-4">
+                <h2 className="mb-2 text-[13px] font-[590] tracking-[-0.08px] text-[#8e8e93] uppercase">
+                  PIC — {section.label}
+                </h2>
+                <div className="space-y-2">
+                  {section.pics.map((pic) => (
+                    <PICItem key={pic.name} {...pic} />
+                  ))}
+                </div>
+              </div>
+            ),
         )}
 
         {pics.length === 0 && (
-          <div className="rounded-xl bg-white p-8 text-center shadow-sm">
+          <div className="glass-card p-8 text-center">
             <div className="text-4xl">📋</div>
-            <p className="mt-2 text-sm text-[#6b7280]">
-              Tidak ada data PIC ditemukan. Periksa apakah spreadsheet sudah
-              dibagikan ke Service Account.
+            <p className="mt-2 text-[15px] tracking-[-0.23px] text-[#8e8e93]">
+              Tidak ada data PIC ditemukan.
             </p>
           </div>
         )}

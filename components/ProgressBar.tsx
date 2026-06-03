@@ -11,16 +11,18 @@ export default function ProgressBar({ filled, total }: ProgressBarProps) {
 
   return (
     <div className="w-full">
-      <div className="mb-1 flex items-center justify-between text-xs">
-        <span className="text-[#6b7280]">
-          {filled} dari {total} site diisi
+      <div className="mb-1.5 flex items-center justify-between">
+        <span className="text-[13px] font-medium tracking-[-0.08px] text-[#8e8e93]">
+          {filled} dari {total}
         </span>
-        <span className="font-semibold text-[#111827]">{pct}%</span>
+        <span className="text-[13px] font-[590] tracking-[-0.08px] text-[#1c1c1e]">
+          {pct}%
+        </span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[rgba(118,118,128,0.12)]">
         <div
-          className={`h-full rounded-full transition-all duration-500 ${
-            isComplete ? "bg-[#0ea56b]" : "bg-[#1d72f5]"
+          className={`h-full rounded-full transition-all duration-700 ease-out ${
+            isComplete ? "bg-[#34c759]" : "bg-[#007aff]"
           }`}
           style={{ width: `${pct}%` }}
         />
