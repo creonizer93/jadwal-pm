@@ -63,7 +63,7 @@ export default function SiteRow({
       {/* Info */}
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-1.5">
-          <span className="truncate text-[14px] font-[590] tracking-[-0.2px] text-[#1c1c1e]">
+          <span className="text-[14px] font-[590] tracking-[-0.2px] text-[#1c1c1e]">
             {tower_name}
           </span>
           <span className="shrink-0 text-[11px] tracking-[-0.06px] text-[#8e8e93]">
