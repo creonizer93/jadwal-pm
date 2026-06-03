@@ -99,7 +99,7 @@ export default function SiteRow({
               setValue(e.target.value);
               onChange(rowIndex, e.target.value);
             }}
-            className={`w-[128px] rounded-lg border bg-white/60 px-2 py-1 text-[13px] tracking-[-0.08px] outline-none backdrop-blur-sm transition-all text-center ${
+            className={`w-[128px] rounded-lg border bg-white/60 px-2 py-1 text-[13px] tracking-[-0.08px] outline-none transition-all text-center ${
               isFilled
                 ? "border-[#34c759] bg-[#34c759]/8 text-[#34c759]"
                 : focused
