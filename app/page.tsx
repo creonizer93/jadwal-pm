@@ -10,6 +10,7 @@ interface PICStatus {
   filled: number;
   done: number;
   complete: boolean;
+  submitted: boolean;
 }
 
 export default function HomePage() {
@@ -78,10 +79,13 @@ export default function HomePage() {
 
   const totalSites = pics.reduce((sum, p) => sum + p.total, 0);
   const doneSites = pics.reduce((sum, p) => sum + p.done, 0);
-  const doneCount = pics.filter((p) => p.complete).length;
-  const openCount = pics.filter((p) => !p.complete).length;
-  const openPICs = pics.filter((p) => !p.complete);
-  const completePICs = pics.filter((p) => p.complete);
+  const submittedCount = pics.filter((p) => p.submitted).length;
+  const completeNotSubmittedCount = pics.filter((p) => p.complete && !p.submitted).length;
+  const incompleteCount = pics.filter((p) => !p.complete).length;
+
+  const incompletePICs = pics.filter((p) => !p.complete);
+  const completeNotSubmittedPICs = pics.filter((p) => p.complete && !p.submitted);
+  const submittedPICs = pics.filter((p) => p.submitted);
 
   if (loading) {
     return (
@@ -223,43 +227,63 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="mb-4 grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-white p-4 text-center shadow-sm">
-            <div className="text-2xl font-bold text-[#0ea56b]">
-              {doneCount}
+        <div className="mb-4 grid grid-cols-3 gap-2">
+          <div className="rounded-xl bg-white p-3 text-center shadow-sm">
+            <div className="text-xl font-bold text-[#ef4444]">
+              {incompleteCount}
             </div>
-            <div className="text-xs text-[#6b7280]">PIC Complete</div>
+            <div className="text-[10px] leading-tight text-[#6b7280]">Belum Complete</div>
           </div>
-          <div className="rounded-xl bg-white p-4 text-center shadow-sm">
-            <div className="text-2xl font-bold text-[#f59e0b]">
-              {openCount}
+          <div className="rounded-xl bg-white p-3 text-center shadow-sm">
+            <div className="text-xl font-bold text-[#f59e0b]">
+              {completeNotSubmittedCount}
             </div>
-            <div className="text-xs text-[#6b7280]">PIC Open</div>
+            <div className="text-[10px] leading-tight text-[#6b7280]">Complete</div>
+          </div>
+          <div className="rounded-xl bg-white p-3 text-center shadow-sm">
+            <div className="text-xl font-bold text-[#0ea56b]">
+              {submittedCount}
+            </div>
+            <div className="text-[10px] leading-tight text-[#6b7280]">Disubmit</div>
           </div>
         </div>
 
-        {/* Open PICs */}
-        {openPICs.length > 0 && (
+        {/* Belum Complete */}
+        {incompletePICs.length > 0 && (
           <div className="mb-4">
             <h2 className="mb-2 text-sm font-semibold text-[#6b7280]">
               PIC — Belum Complete
             </h2>
             <div className="space-y-2">
-              {openPICs.map((pic) => (
+              {incompletePICs.map((pic) => (
                 <PICItem key={pic.name} {...pic} />
               ))}
             </div>
           </div>
         )}
 
-        {/* Complete PICs */}
-        {completePICs.length > 0 && (
-          <div>
+        {/* Complete (belum disubmit) */}
+        {completeNotSubmittedPICs.length > 0 && (
+          <div className="mb-4">
             <h2 className="mb-2 text-sm font-semibold text-[#6b7280]">
               PIC — Complete
             </h2>
             <div className="space-y-2">
-              {completePICs.map((pic) => (
+              {completeNotSubmittedPICs.map((pic) => (
+                <PICItem key={pic.name} {...pic} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Disubmit */}
+        {submittedPICs.length > 0 && (
+          <div>
+            <h2 className="mb-2 text-sm font-semibold text-[#6b7280]">
+              PIC — Disubmit
+            </h2>
+            <div className="space-y-2">
+              {submittedPICs.map((pic) => (
                 <PICItem key={pic.name} {...pic} />
               ))}
             </div>

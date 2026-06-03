@@ -18,7 +18,8 @@ export interface PICStatus {
   total: number;
   filled: number;
   done: number;
-  complete: boolean;
+  complete: boolean;   // semua site punya jadwal (filled >= total)
+  submitted: boolean;  // semua site Done (done >= total)
 }
 
 /** One update in a save batch */
@@ -200,7 +201,8 @@ export async function getAllPICStatus(): Promise<PICStatus[]> {
         total,
         filled,
         done,
-        complete: done >= total,
+        complete: filled >= total,
+        submitted: done >= total,
       });
     });
 
@@ -310,9 +312,11 @@ export async function getUndoneExportData(): Promise<ExportRow[]> {
       const pic = (row[3] || "").trim().toUpperCase();
       const jadwal = normalizeJadwal((row[4] || "").trim());
       const moSite = (row[5] || "").trim();
-      const engineer = engMap.get(pic) || "";
 
       if (!moSite) continue; // skip rows without MO Site
+      if (!jadwal) continue; // only export sites with schedule
+
+      const engineer = engMap.get(pic) || "";
 
       result.push({
         id: moSite,

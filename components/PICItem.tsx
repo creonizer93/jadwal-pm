@@ -8,6 +8,7 @@ interface PICItemProps {
   filled: number;
   done: number;
   complete: boolean;
+  submitted: boolean;
 }
 
 function getInitials(name: string): string {
@@ -16,7 +17,7 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export default function PICItem({ name, total, filled, done, complete }: PICItemProps) {
+export default function PICItem({ name, total, filled, done, complete, submitted }: PICItemProps) {
   const initials = getInitials(name);
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
@@ -29,14 +30,14 @@ export default function PICItem({ name, total, filled, done, complete }: PICItem
       <div className="relative shrink-0">
         <div
           className={`flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold text-white ${
-            complete ? "bg-[#0ea56b]" : "bg-[#1d72f5]"
+            submitted ? "bg-[#0ea56b]" : complete ? "bg-[#f59e0b]" : "bg-[#1d72f5]"
           }`}
         >
           {initials}
         </div>
         <span
           className={`absolute -right-0.5 -top-0.5 h-3.5 w-3.5 rounded-full border-2 border-white ${
-            complete ? "bg-[#0ea56b]" : done > 0 ? "bg-[#f59e0b]" : "bg-[#ef4444]"
+            submitted ? "bg-[#0ea56b]" : complete ? "bg-[#f59e0b]" : done > 0 ? "bg-[#f59e0b]" : "bg-[#ef4444]"
           }`}
         />
       </div>
@@ -51,7 +52,7 @@ export default function PICItem({ name, total, filled, done, complete }: PICItem
           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
-                complete ? "bg-[#0ea56b]" : "bg-[#1d72f5]"
+                submitted ? "bg-[#0ea56b]" : complete ? "bg-[#f59e0b]" : "bg-[#1d72f5]"
               }`}
               style={{ width: `${pct}%` }}
             />
@@ -71,14 +72,16 @@ export default function PICItem({ name, total, filled, done, complete }: PICItem
       {/* Badge */}
       <span
         className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-          complete
+          submitted
             ? "bg-green-100 text-[#0ea56b]"
-            : done > 0
+            : complete
               ? "bg-amber-100 text-[#f59e0b]"
-              : "bg-red-50 text-[#ef4444]"
+              : done > 0
+                ? "bg-amber-100 text-[#f59e0b]"
+                : "bg-red-50 text-[#ef4444]"
         }`}
       >
-        {complete ? "DONE" : done > 0 ? `${done}/${total}` : "OPEN"}
+        {submitted ? "DONE" : complete ? "READY" : done > 0 ? `${done}/${total}` : "OPEN"}
       </span>
     </Link>
   );
