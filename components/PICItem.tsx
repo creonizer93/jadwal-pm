@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import ProgressBar from "@/components/ProgressBar";
 
 interface PICItemProps {
   name: string;
@@ -37,8 +38,8 @@ export default function PICItem({ name, total, filled, complete }: PICItemProps)
         <div className="truncate text-sm font-semibold text-[#111827]">
           {name}
         </div>
-        <div className="mt-0.5 text-xs text-[#6b7280]">
-          {filled} / {total} site diisi
+        <div className="mt-1">
+          <ProgressBar filled={filled} total={total} />
         </div>
       </div>
 
