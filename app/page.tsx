@@ -8,6 +8,7 @@ interface PICStatus {
   name: string;
   total: number;
   filled: number;
+  done: number;
   complete: boolean;
 }
 
@@ -71,7 +72,13 @@ export default function HomePage() {
     setPullDist(0);
   };
 
-  const completeCount = pics.filter((p) => p.complete).length;
+  const handleExport = () => {
+    window.open("/api/export", "_blank");
+  };
+
+  const totalSites = pics.reduce((sum, p) => sum + p.total, 0);
+  const doneSites = pics.reduce((sum, p) => sum + p.done, 0);
+  const doneCount = pics.filter((p) => p.complete).length;
   const openCount = pics.filter((p) => !p.complete).length;
   const openPICs = pics.filter((p) => !p.complete);
   const completePICs = pics.filter((p) => p.complete);
@@ -138,6 +145,8 @@ export default function HomePage() {
     );
   }
 
+  const donePct = totalSites > 0 ? Math.round((doneSites / totalSites) * 100) : 0;
+
   return (
     <div
       className="min-h-screen bg-[#f4f6f9] pb-4"
@@ -173,14 +182,22 @@ export default function HomePage() {
             <h1 className="text-center text-lg font-bold text-[#111827]">
               {title}
             </h1>
-            <button
-              onClick={() => fetchData(true)}
-              disabled={refreshing}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-[#6b7280] transition-all active:scale-90 hover:bg-gray-200 disabled:opacity-50"
-              aria-label="Refresh"
-            >
-              ↻
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleExport}
+                className="rounded-lg bg-[#0ea56b] px-3 py-1.5 text-xs font-semibold text-white transition-all active:scale-95 hover:bg-[#0c8f5c]"
+              >
+                Export
+              </button>
+              <button
+                onClick={() => fetchData(true)}
+                disabled={refreshing}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-[#6b7280] transition-all active:scale-90 hover:bg-gray-200 disabled:opacity-50"
+                aria-label="Refresh"
+              >
+                ↻
+              </button>
+            </div>
           </div>
           <StepPills activeStep={1} />
         </div>
@@ -188,18 +205,36 @@ export default function HomePage() {
 
       {/* Stats Cards */}
       <div className="mx-auto mt-4 max-w-md px-4">
+        {/* Overall progress bar */}
+        <div className="mb-4 rounded-xl bg-white p-4 shadow-sm">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-xs font-semibold text-[#6b7280]">
+              Progress Submit ke Oneflux
+            </span>
+            <span className="text-xs font-bold text-[#111827]">
+              {doneSites}/{totalSites} ({donePct}%)
+            </span>
+          </div>
+          <div className="h-3 overflow-hidden rounded-full bg-gray-200">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#0ea56b] to-[#06d6a0] transition-all duration-700"
+              style={{ width: `${donePct}%` }}
+            />
+          </div>
+        </div>
+
         <div className="mb-4 grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-white p-4 text-center shadow-sm">
             <div className="text-2xl font-bold text-[#0ea56b]">
-              {completeCount}
+              {doneCount}
             </div>
-            <div className="text-xs text-[#6b7280]">Complete</div>
+            <div className="text-xs text-[#6b7280]">PIC Complete</div>
           </div>
           <div className="rounded-xl bg-white p-4 text-center shadow-sm">
             <div className="text-2xl font-bold text-[#f59e0b]">
               {openCount}
             </div>
-            <div className="text-xs text-[#6b7280]">Open</div>
+            <div className="text-xs text-[#6b7280]">PIC Open</div>
           </div>
         </div>
 

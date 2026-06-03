@@ -6,6 +6,7 @@ interface PICItemProps {
   name: string;
   total: number;
   filled: number;
+  done: number;
   complete: boolean;
 }
 
@@ -15,9 +16,9 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export default function PICItem({ name, total, filled, complete }: PICItemProps) {
+export default function PICItem({ name, total, filled, done, complete }: PICItemProps) {
   const initials = getInitials(name);
-  const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
   return (
     <Link
@@ -35,7 +36,7 @@ export default function PICItem({ name, total, filled, complete }: PICItemProps)
         </div>
         <span
           className={`absolute -right-0.5 -top-0.5 h-3.5 w-3.5 rounded-full border-2 border-white ${
-            complete ? "bg-[#0ea56b]" : filled > 0 ? "bg-[#f59e0b]" : "bg-[#ef4444]"
+            complete ? "bg-[#0ea56b]" : done > 0 ? "bg-[#f59e0b]" : "bg-[#ef4444]"
           }`}
         />
       </div>
@@ -56,9 +57,15 @@ export default function PICItem({ name, total, filled, complete }: PICItemProps)
             />
           </div>
           <span className="shrink-0 text-[10px] font-medium text-[#6b7280]">
-            {filled}/{total}
+            {done}/{total}
           </span>
         </div>
+        {/* Subtle: jadwal filled vs done */}
+        {filled !== done && (
+          <div className="mt-0.5 text-[10px] text-[#9ca3af]">
+            {filled} terisi • {filled - done} belum submit
+          </div>
+        )}
       </div>
 
       {/* Badge */}
@@ -66,10 +73,12 @@ export default function PICItem({ name, total, filled, complete }: PICItemProps)
         className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
           complete
             ? "bg-green-100 text-[#0ea56b]"
-            : "bg-amber-100 text-[#f59e0b]"
+            : done > 0
+              ? "bg-amber-100 text-[#f59e0b]"
+              : "bg-red-50 text-[#ef4444]"
         }`}
       >
-        {complete ? "COMPLETE" : "OPEN"}
+        {complete ? "DONE" : done > 0 ? `${done}/${total}` : "OPEN"}
       </span>
     </Link>
   );

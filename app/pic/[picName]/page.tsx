@@ -14,6 +14,8 @@ interface Site {
   tower_name: string;
   pic: string;
   jadwal: string;
+  mo_site: string;
+  status: string;
 }
 
 function getInitials(name: string): string {
@@ -251,6 +253,8 @@ export default function PICPage({
                   jadwal={updates[site.rowIndex] || site.jadwal || ""}
                   onChange={handleDateChange}
                   isTarget={firstUnfilled?.rowIndex === site.rowIndex}
+                  isDone={site.status === "Done"}
+                  moSite={site.mo_site || ""}
                 />
               ))}
             </div>
@@ -274,6 +278,8 @@ export default function PICPage({
                   jadwal={updates[site.rowIndex] || site.jadwal || ""}
                   onChange={handleDateChange}
                   isTarget={firstUnfilled?.rowIndex === site.rowIndex}
+                  isDone={site.status === "Done"}
+                  moSite={site.mo_site || ""}
                 />
               ))}
             </div>
