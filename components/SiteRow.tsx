@@ -15,7 +15,6 @@ interface SiteRowProps {
 }
 
 function formatSiteId(raw: string): string {
-  // "PTS-09-025" → "PTS 09-025" (spasi setelah kode awal)
   const m = raw.match(/^([A-Z]+)-(\d+)-(.+)$/);
   if (m) return `${m[1]} ${m[2]}‑${m[3]}`;
   return raw;
@@ -50,68 +49,70 @@ export default function SiteRow({
           el.scrollIntoView({ behavior: "smooth", block: "center" });
         }
       }}
-      className={`glass-card flex items-center gap-2.5 py-2.5 pl-3 pr-2 ${
+      className={`glass-card p-3 ${
         isDone ? "opacity-60" : ""
       } ${!isFilled && !isDone && focused ? "ring-2 ring-[#007aff] ring-offset-1 ring-offset-[#f2f2f7]" : ""}`}
     >
-      {/* Left accent dot */}
-      <div
-        className="h-2 w-2 shrink-0 rounded-full"
-        style={{ backgroundColor: statusColor }}
-      />
-
-      {/* Info */}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-[14px] font-[590] tracking-[-0.2px] text-[#1c1c1e]">
-            {tower_name}
+      {/* Row 1: Nama Site */}
+      <div className="flex items-center gap-2">
+        <div
+          className="h-2 w-2 shrink-0 rounded-full"
+          style={{ backgroundColor: statusColor }}
+        />
+        <span className="text-[14px] font-[590] tracking-[-0.2px] text-[#1c1c1e]">
+          {tower_name}
+        </span>
+        {isDone && (
+          <span className="shrink-0 rounded bg-[#34c759]/12 px-1 py-px text-[9px] font-[590] text-[#34c759]">
+            ✓
           </span>
-          <span className="shrink-0 text-[11px] tracking-[-0.06px] text-[#8e8e93]">
+        )}
+      </div>
+
+      {/* Row 2: Site ID - type + date */}
+      <div className="mt-1.5 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[12px] tracking-[-0.06px] text-[#8e8e93]">
             {formatSiteId(site_id)}
           </span>
+          <span className="text-[12px] tracking-[-0.06px] text-[#aeaeb2]">—</span>
           <span
-            className="shrink-0 rounded px-1 py-px text-[9px] font-[590]"
+            className="shrink-0 rounded px-1.5 py-px text-[10px] font-[590]"
             style={{ backgroundColor: `${typeColor}16`, color: typeColor }}
           >
             {type}
           </span>
-          {isDone && (
-            <span className="shrink-0 rounded bg-[#34c759]/12 px-1 py-px text-[9px] font-[590] text-[#34c759]">
-              ✓
-            </span>
-          )}
         </div>
-      </div>
 
-      {/* Date */}
-      <div className="flex shrink-0 items-center gap-1.5">
         {isDone ? (
           <span className="rounded-lg bg-[#34c759]/8 px-2 py-1 text-[13px] font-[590] tracking-[-0.08px] text-[#34c759]">
             {value || "-"}
           </span>
         ) : (
-          <input
-            type="date"
-            value={value}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-            onChange={(e) => {
-              setValue(e.target.value);
-              onChange(rowIndex, e.target.value);
-            }}
-            className={`w-[128px] rounded-lg border bg-white/60 px-2 py-1 text-[13px] tracking-[-0.08px] outline-none transition-all text-center ${
-              isFilled
-                ? "border-[#34c759] bg-[#34c759]/8 text-[#34c759]"
-                : focused
-                  ? "border-[#007aff] bg-[#007aff]/8 ring-1 ring-[#007aff]"
-                  : "border-[rgba(118,118,128,0.14)] bg-[rgba(118,118,128,0.04)] text-[#aeaeb2]"
-            }`}
-          />
-        )}
-        {isFilled && (
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#34c759] text-[11px] text-white">
-            ✓
-          </span>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="date"
+              value={value}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              onChange={(e) => {
+                setValue(e.target.value);
+                onChange(rowIndex, e.target.value);
+              }}
+              className={`w-[128px] rounded-lg border bg-white/60 px-2 py-1 text-[13px] tracking-[-0.08px] outline-none text-center ${
+                isFilled
+                  ? "border-[#34c759] bg-[#34c759]/8 text-[#34c759]"
+                  : focused
+                    ? "border-[#007aff] bg-[#007aff]/8 ring-1 ring-[#007aff]"
+                    : "border-[rgba(118,118,128,0.14)] bg-[rgba(118,118,128,0.04)] text-[#aeaeb2]"
+              }`}
+            />
+            {isFilled && (
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#34c759] text-[11px] text-white">
+                ✓
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>
