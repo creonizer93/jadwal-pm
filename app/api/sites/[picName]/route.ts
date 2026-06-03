@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSitesByPIC, SheetsError } from "@/lib/sheets";
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 export async function GET(
   request: Request,
