@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import ProgressBar from "@/components/ProgressBar";
 
 interface PICItemProps {
   name: string;
@@ -18,19 +17,27 @@ function getInitials(name: string): string {
 
 export default function PICItem({ name, total, filled, complete }: PICItemProps) {
   const initials = getInitials(name);
+  const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
 
   return (
     <Link
       href={`/pic/${encodeURIComponent(name)}`}
       className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm transition-shadow active:scale-[0.98] hover:shadow-md"
     >
-      {/* Avatar */}
-      <div
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${
-          complete ? "bg-[#0ea56b]" : "bg-[#1d72f5]"
-        }`}
-      >
-        {initials}
+      {/* Avatar with status dot */}
+      <div className="relative shrink-0">
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold text-white ${
+            complete ? "bg-[#0ea56b]" : "bg-[#1d72f5]"
+          }`}
+        >
+          {initials}
+        </div>
+        <span
+          className={`absolute -right-0.5 -top-0.5 h-3.5 w-3.5 rounded-full border-2 border-white ${
+            complete ? "bg-[#0ea56b]" : filled > 0 ? "bg-[#f59e0b]" : "bg-[#ef4444]"
+          }`}
+        />
       </div>
 
       {/* Info */}
@@ -38,8 +45,19 @@ export default function PICItem({ name, total, filled, complete }: PICItemProps)
         <div className="truncate text-sm font-semibold text-[#111827]">
           {name}
         </div>
-        <div className="mt-1">
-          <ProgressBar filled={filled} total={total} />
+        {/* Mini progress bar */}
+        <div className="mt-1.5 flex items-center gap-2">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                complete ? "bg-[#0ea56b]" : "bg-[#1d72f5]"
+              }`}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <span className="shrink-0 text-[10px] font-medium text-[#6b7280]">
+            {filled}/{total}
+          </span>
         </div>
       </div>
 

@@ -36,6 +36,7 @@ export default function PICPage({
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [updates, setUpdates] = useState<Record<number, string>>({});
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     async function fetchSites() {
@@ -84,6 +85,10 @@ export default function PICPage({
 
   const allFilled = filledFromUpdates >= totalSites && totalSites > 0;
 
+  const handleSaveClick = () => {
+    setShowConfirm(true);
+  };
+
   const handleSave = async () => {
     if (!allFilled || saving) return;
 
@@ -122,10 +127,47 @@ export default function PICPage({
   const mrSites = sites.filter((s) => s.type === "MR");
   const vwSites = sites.filter((s) => s.type === "VW");
 
+  // Find first unfilled for auto-scroll
+  const firstUnfilled = sites.find(
+    (s) => (updates[s.rowIndex] || s.jadwal || "").trim() === "",
+  );
+
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#1d72f5] border-t-transparent" />
+      <div className="min-h-screen bg-[#f4f6f9]">
+        <header className="bg-white px-4 pt-4 pb-3 shadow-sm">
+          <div className="mx-auto max-w-md">
+            <div className="flex items-center justify-between">
+              <div className="h-5 w-20 animate-pulse rounded bg-gray-200" />
+              <div className="h-5 w-32 animate-pulse rounded bg-gray-200" />
+            </div>
+            <div className="flex items-center justify-center gap-3 py-4">
+              <div className="h-8 w-24 animate-pulse rounded-full bg-gray-200" />
+              <div className="h-px w-6 bg-gray-200" />
+              <div className="h-8 w-32 animate-pulse rounded-full bg-gray-200" />
+            </div>
+          </div>
+        </header>
+        <div className="mx-auto max-w-md px-4">
+          <div className="mt-3 flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm">
+            <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200" />
+            <div className="flex-1">
+              <div className="mb-1 h-4 w-32 animate-pulse rounded bg-gray-200" />
+              <div className="h-3 w-20 animate-pulse rounded bg-gray-100" />
+            </div>
+          </div>
+          <div className="mt-4 space-y-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-center gap-3 rounded-xl border-l-4 border-gray-200 bg-white p-4 shadow-sm">
+                <div className="flex-1">
+                  <div className="mb-1 h-4 w-40 animate-pulse rounded bg-gray-200" />
+                  <div className="h-3 w-24 animate-pulse rounded bg-gray-100" />
+                </div>
+                <div className="h-9 w-28 animate-pulse rounded-lg bg-gray-200" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -208,6 +250,7 @@ export default function PICPage({
                   tower_name={site.tower_name}
                   jadwal={updates[site.rowIndex] || site.jadwal || ""}
                   onChange={handleDateChange}
+                  isTarget={firstUnfilled?.rowIndex === site.rowIndex}
                 />
               ))}
             </div>
@@ -230,6 +273,7 @@ export default function PICPage({
                   tower_name={site.tower_name}
                   jadwal={updates[site.rowIndex] || site.jadwal || ""}
                   onChange={handleDateChange}
+                  isTarget={firstUnfilled?.rowIndex === site.rowIndex}
                 />
               ))}
             </div>
@@ -273,10 +317,43 @@ export default function PICPage({
         </div>
       )}
 
+      {/* Confirmation dialog */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 text-center text-4xl">📋</div>
+            <h3 className="mb-1 text-center text-base font-bold text-[#111827]">
+              Simpan Jadwal?
+            </h3>
+            <p className="mb-6 text-center text-sm text-[#6b7280]">
+              {totalSites} jadwal akan ditulis ke spreadsheet. <br />
+              Data lama akan ditimpa.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 rounded-xl border border-gray-200 bg-white py-3 text-sm font-semibold text-[#6b7280] transition-all active:scale-[0.98] hover:bg-gray-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirm(false);
+                  handleSave();
+                }}
+                className="flex-1 rounded-xl bg-[#0ea56b] py-3 text-sm font-bold text-white transition-all active:scale-[0.98] hover:bg-[#0c8f5c]"
+              >
+                Ya, Simpan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sticky Footer */}
       <StickyFooter
         disabled={!allFilled || saving}
-        onSave={handleSave}
+        onSave={handleSaveClick}
       />
     </div>
   );

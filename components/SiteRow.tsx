@@ -9,6 +9,7 @@ interface SiteRowProps {
   tower_name: string;
   jadwal: string;
   onChange: (rowIndex: number, value: string) => void;
+  isTarget?: boolean;
 }
 
 export default function SiteRow({
@@ -18,8 +19,10 @@ export default function SiteRow({
   tower_name,
   jadwal,
   onChange,
+  isTarget = false,
 }: SiteRowProps) {
   const [value, setValue] = useState(jadwal);
+  const [focused, setFocused] = useState(false);
   const isFilled = value.trim() !== "";
 
   const borderColor = isFilled
@@ -30,7 +33,13 @@ export default function SiteRow({
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-xl border-l-4 bg-white p-4 shadow-sm ${borderColor}`}
+      id={isTarget ? "first-unfilled" : undefined}
+      ref={(el) => {
+        if (isTarget && el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }}
+      className={`flex items-center gap-3 rounded-xl border-l-4 bg-white p-4 shadow-sm transition-all ${borderColor} ${!isFilled && focused ? "ring-2 ring-[#1d72f5] ring-offset-1" : ""}`}
     >
       {/* Tower info */}
       <div className="min-w-0 flex-1">
@@ -53,17 +62,33 @@ export default function SiteRow({
 
       {/* Date input */}
       <div className="flex items-center gap-2">
-        <input
-          type="date"
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-            onChange(rowIndex, e.target.value);
-          }}
-          className="rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 text-sm text-[#111827] outline-none focus:border-[#1d72f5] focus:ring-1 focus:ring-[#1d72f5]"
-        />
+        <div className="relative">
+          {!isFilled && (
+            <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center text-xs text-[#b0b7c3]">
+              📅
+            </span>
+          )}
+          <input
+            type="date"
+            value={value}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            onChange={(e) => {
+              setValue(e.target.value);
+              onChange(rowIndex, e.target.value);
+            }}
+            className={`rounded-lg border bg-gray-50 px-2 py-1.5 text-sm outline-none transition-all ${
+              isFilled
+                ? "border-[#0ea56b] bg-green-50 text-[#0ea56b]"
+                : focused
+                  ? "border-[#1d72f5] bg-blue-50 ring-1 ring-[#1d72f5]"
+                  : "animate-pulse border-amber-200 bg-amber-50 text-[#6b7280]"
+            } ${!isFilled ? "pl-7" : ""}`}
+            placeholder="yyyy-mm-dd"
+          />
+        </div>
         {isFilled && (
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#0ea56b] text-white text-xs">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#0ea56b] text-xs text-white">
             ✓
           </span>
         )}
