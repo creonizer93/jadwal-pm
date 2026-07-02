@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import StepPills from "@/components/StepPills";
 import ProgressBar from "@/components/ProgressBar";
 import SiteRow from "@/components/SiteRow";
 import StickyFooter from "@/components/StickyFooter";
+import { parseRegion, type Region } from "@/lib/regions";
 
 interface Site {
   rowIndex: number;
@@ -30,7 +31,9 @@ export default function PICPage({
   params: { picName: string };
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const picName = decodeURIComponent(params.picName);
+  const region: Region = parseRegion(searchParams.get("region"));
 
   const [sites, setSites] = useState<Site[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +46,9 @@ export default function PICPage({
   useEffect(() => {
     async function fetchSites() {
       try {
-        const res = await fetch(`/api/sites/${encodeURIComponent(picName)}`);
+        const res = await fetch(
+          `/api/sites/${encodeURIComponent(picName)}?region=${region}`,
+        );
         if (!res.ok) {
           const errData = await res.json();
           throw new Error(errData.error || "Gagal memuat data site");
@@ -64,7 +69,7 @@ export default function PICPage({
     }
 
     fetchSites();
-  }, [picName]);
+  }, [picName, region]);
 
   const handleDateChange = (rowIndex: number, value: string) => {
     setUpdates((prev) => {
@@ -105,7 +110,7 @@ export default function PICPage({
       const res = await fetch("/api/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ updates: updateList }),
+        body: JSON.stringify({ updates: updateList, region }),
       });
 
       if (!res.ok) {
@@ -115,7 +120,7 @@ export default function PICPage({
 
       setSaveSuccess(true);
       setTimeout(() => {
-        router.push("/");
+        router.push(`/?region=${region}`);
       }, 800);
     } catch (err: unknown) {
       setError((err as Error).message);
@@ -179,7 +184,7 @@ export default function PICPage({
             {error}
           </p>
           <button
-            onClick={() => router.push("/")}
+            onClick={() => router.push(`/?region=${region}`)}
             className="btn-ios btn-ios-primary mt-4"
           >
             Kembali ke Dashboard
@@ -195,7 +200,7 @@ export default function PICPage({
       <header className="glass-nav px-4 pt-4 pb-3">
         <div className="mx-auto flex max-w-md items-center justify-between">
           <button
-            onClick={() => router.push("/")}
+            onClick={() => router.push(`/?region=${region}`)}
             className="flex items-center gap-1 text-[15px] font-medium tracking-[-0.23px] text-[#007aff] transition-opacity active:opacity-60"
           >
             ← Kembali

@@ -9,6 +9,7 @@ interface PICItemProps {
   done: number;
   complete: boolean;
   submitted: boolean;
+  region: "kalbar" | "kalteng";
 }
 
 function getInitials(name: string): string {
@@ -24,6 +25,7 @@ export default function PICItem({
   done,
   complete,
   submitted,
+  region,
 }: PICItemProps) {
   const initials = getInitials(name);
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -52,7 +54,7 @@ export default function PICItem({
 
   return (
     <Link
-      href={`/pic/${encodeURIComponent(name)}`}
+      href={`/pic/${encodeURIComponent(name)}?region=${region}`}
       className="glass-card flex items-center gap-3 p-4"
     >
       {/* Avatar */}

@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import { REGION_ENGINER_SHEETS, REGION_SHEETS, type Region } from "@/lib/regions";
 
 /** Represents a single row of site data from the spreadsheet */
 export interface Site {
@@ -123,15 +124,17 @@ export async function getSpreadsheetTitle(): Promise<string> {
 
 /**
  * Fetch the Engineer sheet and return a map: nickname → email.
+ * Region determines which engineer worksheet to read.
  */
-export async function getEngineerMap(): Promise<Map<string, string>> {
+export async function getEngineerMap(region: Region): Promise<Map<string, string>> {
   try {
     const sheets = getClient();
     const { spreadsheetId } = getConfig();
+    const engSheet = REGION_ENGINER_SHEETS[region];
 
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: "Engineer!A:B",
+      range: `${engSheet}!A:B`,
     });
 
     const rows = res.data.values || [];
@@ -155,13 +158,14 @@ export async function getEngineerMap(): Promise<Map<string, string>> {
 }
 
 /**
- * Get all PICs with their completion status.
- * Now reads columns A-G to track "Done" status.
+ * Get all PICs with their completion status for a given region.
+ * Region determines which data worksheet to read.
  */
-export async function getAllPICStatus(): Promise<PICStatus[]> {
+export async function getAllPICStatus(region: Region): Promise<PICStatus[]> {
   try {
     const sheets = getClient();
-    const { spreadsheetId, sheetName } = getConfig();
+    const { spreadsheetId } = getConfig();
+    const sheetName = REGION_SHEETS[region];
 
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId,
@@ -217,13 +221,14 @@ export async function getAllPICStatus(): Promise<PICStatus[]> {
 }
 
 /**
- * Get all sites for a specific PIC.
- * Now reads columns A-G.
+ * Get all sites for a specific PIC in a given region.
+ * Region determines which data worksheet to read.
  */
-export async function getSitesByPIC(picName: string): Promise<Site[]> {
+export async function getSitesByPIC(picName: string, region: Region): Promise<Site[]> {
   try {
     const sheets = getClient();
-    const { spreadsheetId, sheetName } = getConfig();
+    const { spreadsheetId } = getConfig();
+    const sheetName = REGION_SHEETS[region];
 
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId,
@@ -268,13 +273,15 @@ export async function getSitesByPIC(picName: string): Promise<Site[]> {
 }
 
 /**
- * Get export data for all sites where Status is NOT "Done".
- * Joins with Engineer sheet for email lookup.
+ * Get export data for all sites where Status is NOT "Done" in a given region.
+ * Joins with the region's Engineer sheet for email lookup.
  */
-export async function getUndoneExportData(): Promise<ExportRow[]> {
+export async function getUndoneExportData(region: Region): Promise<ExportRow[]> {
   try {
     const sheets = getClient();
-    const { spreadsheetId, sheetName } = getConfig();
+    const { spreadsheetId } = getConfig();
+    const sheetName = REGION_SHEETS[region];
+    const engSheet = REGION_ENGINER_SHEETS[region];
 
     // Fetch both sheets in parallel
     const [dataRes, engRes] = await Promise.all([
@@ -284,11 +291,11 @@ export async function getUndoneExportData(): Promise<ExportRow[]> {
       }),
       sheets.spreadsheets.values.get({
         spreadsheetId,
-        range: "Engineer!A:B",
+        range: `${engSheet}!A:B`,
       }),
     ]);
 
-    // Build engineer map
+    // Build engineer map (region-specific worksheet)
     const engRows = engRes.data.values || [];
     const engMap = new Map<string, string>();
     for (let i = 1; i < engRows.length; i++) {
@@ -337,17 +344,19 @@ export async function getUndoneExportData(): Promise<ExportRow[]> {
 }
 
 /**
- * Save jadwal updates back to the spreadsheet.
+ * Save jadwal updates back to the spreadsheet for a given region.
  * Uses batchUpdate to write all changes in one API call.
  */
 export async function saveJadwal(
   updates: Update[],
+  region: Region,
 ): Promise<{ count: number }> {
   if (!updates.length) return { count: 0 };
 
   try {
     const sheets = getClient();
-    const { spreadsheetId, sheetName } = getConfig();
+    const { spreadsheetId } = getConfig();
+    const sheetName = REGION_SHEETS[region];
 
     // Build batch update data — column E for each rowIndex
     const data = updates.map((u) => ({

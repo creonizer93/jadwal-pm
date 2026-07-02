@@ -22,6 +22,17 @@ const config: Config = {
         ],
       },
       colors: {
+        // shadcn-compatible tokens mapped to iOS palette
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        "muted-foreground": "hsl(var(--muted-foreground))",
         // iOS-inspired palette
         "ios-bg": "#f2f2f7",
         "ios-surface": "#ffffff",

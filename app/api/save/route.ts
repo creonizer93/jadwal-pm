@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { saveJadwal, SheetsError } from "@/lib/sheets";
+import { parseRegion } from "@/lib/regions";
 
 export const dynamic = "force-dynamic";
 
@@ -7,6 +8,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const updates = body.updates;
+    const region = parseRegion(body.region);
 
     if (!Array.isArray(updates)) {
       return NextResponse.json(
@@ -15,7 +17,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await saveJadwal(updates);
+    const result = await saveJadwal(updates, region);
     return NextResponse.json({ success: true, count: result.count });
   } catch (err: unknown) {
     if (err instanceof SheetsError) {

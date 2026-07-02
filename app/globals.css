@@ -4,6 +4,16 @@
 
 :root {
   --ios-bg: #f2f2f7;
+
+  /* shadcn-compatible tokens (mapped to iOS palette) */
+  --border: 0 0% 0%;
+  --input: 240 5% 84%;
+  --ring: 211 100% 50%;
+  --background: 0 0% 100%;
+  --foreground: 240 6% 10%;
+  --primary: 211 100% 50%;
+  --primary-foreground: 0 0% 100%;
+  --muted-foreground: 240 4% 56%;
   --ios-surface: #ffffff;
   --ios-accent: #007aff;
   --ios-success: #34c759;

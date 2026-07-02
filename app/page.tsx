@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import StepPills from "@/components/StepPills";
 import PICItem from "@/components/PICItem";
+import { RegionTabs } from "@/components/RegionTabs";
+import { parseRegion, REGION_LABELS, type Region } from "@/lib/regions";
 
 interface PICStatus {
   name: string;
@@ -13,39 +16,54 @@ interface PICStatus {
   submitted: boolean;
 }
 
-export default function HomePage() {
+function HomePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const region: Region = parseRegion(searchParams.get("region"));
+
   const [title, setTitle] = useState("Jadwal Kunjungan PM");
   const [pics, setPics] = useState<PICStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showExport, setShowExport] = useState(false);
 
-  const fetchData = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    try {
-      const titleRes = await fetch("/api/title");
-      if (titleRes.ok) {
-        const titleData = await titleRes.json();
-        setTitle(titleData.title);
-      }
+  const setRegion = (next: Region) => {
+    const q = new URLSearchParams(searchParams.toString());
+    q.set("region", next);
+    router.replace(`/?${q.toString()}`, { scroll: false });
+  };
 
-      const picRes = await fetch("/api/pic-status");
-      if (!picRes.ok) {
-        const errData = await picRes.json();
-        throw new Error(errData.error || "Gagal memuat data PIC");
+  const fetchData = useCallback(
+    async (isRefresh = false) => {
+      if (isRefresh) setRefreshing(true);
+      try {
+        const titleRes = await fetch("/api/title");
+        if (titleRes.ok) {
+          const titleData = await titleRes.json();
+          setTitle(titleData.title);
+        }
+
+        const picRes = await fetch(`/api/pic-status?region=${region}`);
+        if (!picRes.ok) {
+          const errData = await picRes.json();
+          throw new Error(errData.error || "Gagal memuat data PIC");
+        }
+        const picData: PICStatus[] = await picRes.json();
+        setPics(picData);
+        setError(null);
+      } catch (err: unknown) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-      const picData: PICStatus[] = await picRes.json();
-      setPics(picData);
-      setError(null);
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
+    },
+    [region],
+  );
 
   useEffect(() => {
+    setLoading(true);
     fetchData();
   }, [fetchData]);
 
@@ -73,8 +91,9 @@ export default function HomePage() {
     setPullDist(0);
   };
 
-  const handleExport = () => {
-    window.open("/api/export", "_blank");
+  const handleExport = (exportRegion: Region) => {
+    window.open(`/api/export?region=${exportRegion}`, "_blank");
+    setShowExport(false);
   };
 
   const totalSites = pics.reduce((sum, p) => sum + p.total, 0);
@@ -194,7 +213,7 @@ export default function HomePage() {
             </h1>
             <div className="flex items-center gap-1">
               <button
-                onClick={handleExport}
+                onClick={() => setShowExport(true)}
                 className="btn-ios btn-ios-outline !px-4 !py-1.5 !text-[12px]"
               >
                 Export
@@ -211,6 +230,9 @@ export default function HomePage() {
           </div>
           <div className="py-2">
             <StepPills activeStep={1} />
+          </div>
+          <div className="pb-1">
+            <RegionTabs value={region} onChange={setRegion} />
           </div>
         </div>
       </header>
@@ -270,7 +292,7 @@ export default function HomePage() {
                 </h2>
                 <div className="space-y-2">
                   {section.pics.map((pic) => (
-                    <PICItem key={pic.name} {...pic} />
+                    <PICItem key={pic.name} {...pic} region={region} />
                   ))}
                 </div>
               </div>
@@ -286,6 +308,47 @@ export default function HomePage() {
           </div>
         )}
       </div>
+
+      {/* Export dialog */}
+      {showExport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="glass-card w-full max-w-sm p-6">
+            <div className="mb-4 text-center text-4xl">📤</div>
+            <h3 className="mb-1 text-center text-[17px] font-[590] tracking-[-0.23px] text-[#1c1c1e]">
+              Export Jadwal
+            </h3>
+            <p className="mb-6 text-center text-[15px] tracking-[-0.23px] text-[#8e8e93]">
+              Pilih region untuk di-export (xlsx, kolom terpisah).
+            </p>
+            <div className="flex flex-col gap-3">
+              {(["kalbar", "kalteng"] as Region[]).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => handleExport(r)}
+                  className="btn-ios btn-ios-outline w-full justify-between"
+                >
+                  <span>{REGION_LABELS[r]}</span>
+                  <span className="text-[12px] text-[#8e8e93]">.xlsx</span>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowExport(false)}
+              className="btn-ios btn-ios-primary mt-3 w-full"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+export default function HomePageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <HomePage />
+    </Suspense>
   );
 }

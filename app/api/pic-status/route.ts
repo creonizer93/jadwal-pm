@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { getAllPICStatus, SheetsError } from "@/lib/sheets";
+import { parseRegion } from "@/lib/regions";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const data = await getAllPICStatus();
+    const region = parseRegion(new URL(request.url).searchParams.get("region"));
+    const data = await getAllPICStatus(region);
     return NextResponse.json(data);
   } catch (err: unknown) {
     if (err instanceof SheetsError) {
