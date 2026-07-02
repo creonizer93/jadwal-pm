@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import { REGION_ENGINER_SHEETS, REGION_SHEETS, type Region } from "@/lib/regions";
+import { bust, cached } from "@/lib/cache";
 
 /** Represents a single row of site data from the spreadsheet */
 export interface Site {
@@ -65,11 +66,15 @@ function normalizeJadwal(raw: string): string {
   return raw;
 }
 
+let _sheetsClient: ReturnType<typeof google.sheets> | null = null;
+
 /**
  * Build and return an authenticated Google Sheets client.
+ * Memoized: the underlying JWT reuses its cached access token across calls.
  * Credentials are read from environment variables.
  */
 function getClient() {
+  if (_sheetsClient) return _sheetsClient;
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const key = (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
 
@@ -86,7 +91,8 @@ function getClient() {
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
   });
 
-  return google.sheets({ version: "v4", auth });
+  _sheetsClient = google.sheets({ version: "v4", auth });
+  return _sheetsClient;
 }
 
 /** Get spreadsheet ID and sheet name from env */
@@ -104,15 +110,42 @@ function getConfig() {
   return { spreadsheetId, sheetName };
 }
 
+/** Cache TTLs */
+const TTL_ROWS = 10_000; // 10s — short, since data changes on save
+const TTL_ENGINER = 60_000; // 60s
+const TTL_TITLE = 300_000; // 5 min — title rarely changes
+
+/** Cache key prefix per region's data worksheet rows. */
+const rowsKey = (r: Region) => `rows:${REGION_SHEETS[r]}`;
+
 /**
- * Fetch the title (name) of the configured spreadsheet.
+ * Read rows A:G of a region's sheet (cached, single-flighted).
+ */
+async function getSheetRows(region: Region): Promise<string[][]> {
+  const { spreadsheetId } = getConfig();
+  const sheetName = REGION_SHEETS[region];
+
+  return cached(rowsKey(region), TTL_ROWS, async () => {
+    const sheets = getClient();
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${sheetName}!A:G`,
+    });
+    return (res.data.values as string[][]) || [];
+  });
+}
+
+/**
+ * Fetch the title (name) of the configured spreadsheet (cached).
  */
 export async function getSpreadsheetTitle(): Promise<string> {
   try {
-    const sheets = getClient();
     const { spreadsheetId } = getConfig();
-    const res = await sheets.spreadsheets.get({ spreadsheetId });
-    return res.data.properties?.title || "Jadwal Kunjungan PM";
+    return cached("spreadsheet:title", TTL_TITLE, async () => {
+      const sheets = getClient();
+      const res = await sheets.spreadsheets.get({ spreadsheetId });
+      return res.data.properties?.title || "Jadwal Kunjungan PM";
+    });
   } catch (err: unknown) {
     if (err instanceof SheetsError) throw err;
     throw new SheetsError(
@@ -128,26 +161,28 @@ export async function getSpreadsheetTitle(): Promise<string> {
  */
 export async function getEngineerMap(region: Region): Promise<Map<string, string>> {
   try {
-    const sheets = getClient();
-    const { spreadsheetId } = getConfig();
-    const engSheet = REGION_ENGINER_SHEETS[region];
+    return cached(`eng:${REGION_ENGINER_SHEETS[region]}`, TTL_ENGINER, async () => {
+      const sheets = getClient();
+      const { spreadsheetId } = getConfig();
+      const engSheet = REGION_ENGINER_SHEETS[region];
 
-    const res = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: `${engSheet}!A:B`,
-    });
+      const res = await sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range: `${engSheet}!A:B`,
+      });
 
-    const rows = res.data.values || [];
-    const map = new Map<string, string>();
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i];
-      const email = (row[0] || "").trim();
-      const nickname = (row[1] || "").trim().toUpperCase();
-      if (email && nickname) {
-        map.set(nickname, email);
+      const rows = res.data.values || [];
+      const map = new Map<string, string>();
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const email = (row[0] || "").trim();
+        const nickname = (row[1] || "").trim().toUpperCase();
+        if (email && nickname) {
+          map.set(nickname, email);
+        }
       }
-    }
-    return map;
+      return map;
+    });
   } catch (err: unknown) {
     if (err instanceof SheetsError) throw err;
     throw new SheetsError(
@@ -163,16 +198,7 @@ export async function getEngineerMap(region: Region): Promise<Map<string, string
  */
 export async function getAllPICStatus(region: Region): Promise<PICStatus[]> {
   try {
-    const sheets = getClient();
-    const { spreadsheetId } = getConfig();
-    const sheetName = REGION_SHEETS[region];
-
-    const res = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: `${sheetName}!A:G`, // columns A through G
-    });
-
-    const rows = res.data.values || [];
+    const rows = await getSheetRows(region);
     if (rows.length < 2) return []; // header only
 
     const dataRows = rows.slice(1);
@@ -226,16 +252,7 @@ export async function getAllPICStatus(region: Region): Promise<PICStatus[]> {
  */
 export async function getSitesByPIC(picName: string, region: Region): Promise<Site[]> {
   try {
-    const sheets = getClient();
-    const { spreadsheetId } = getConfig();
-    const sheetName = REGION_SHEETS[region];
-
-    const res = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: `${sheetName}!A:G`,
-    });
-
-    const rows = res.data.values || [];
+    const rows = await getSheetRows(region);
     if (rows.length < 2) return [];
 
     const sites: Site[] = [];
@@ -278,36 +295,12 @@ export async function getSitesByPIC(picName: string, region: Region): Promise<Si
  */
 export async function getUndoneExportData(region: Region): Promise<ExportRow[]> {
   try {
-    const sheets = getClient();
-    const { spreadsheetId } = getConfig();
-    const sheetName = REGION_SHEETS[region];
-    const engSheet = REGION_ENGINER_SHEETS[region];
-
-    // Fetch both sheets in parallel
-    const [dataRes, engRes] = await Promise.all([
-      sheets.spreadsheets.values.get({
-        spreadsheetId,
-        range: `${sheetName}!A:G`,
-      }),
-      sheets.spreadsheets.values.get({
-        spreadsheetId,
-        range: `${engSheet}!A:B`,
-      }),
+    // Reuse cached data rows + cached engineer map
+    const [rows, engMap] = await Promise.all([
+      getSheetRows(region),
+      getEngineerMap(region),
     ]);
 
-    // Build engineer map (region-specific worksheet)
-    const engRows = engRes.data.values || [];
-    const engMap = new Map<string, string>();
-    for (let i = 1; i < engRows.length; i++) {
-      const email = (engRows[i][0] || "").trim();
-      const nickname = (engRows[i][1] || "").trim().toUpperCase();
-      if (email && nickname) {
-        engMap.set(nickname, email);
-      }
-    }
-
-    // Filter undone sites
-    const rows = dataRes.data.values || [];
     const result: ExportRow[] = [];
     const visitorPermit = "HARIA HUDA QURNIAWAN-3506181308900005";
 
@@ -379,5 +372,8 @@ export async function saveJadwal(
       (err as Error).message || "Failed to save jadwal",
       "API_ERROR",
     );
+  } finally {
+    // Invalidate cached rows for this region so next read reflects the write
+    if (updates.length) bust(rowsKey(region));
   }
 }

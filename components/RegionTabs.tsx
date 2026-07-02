@@ -2,9 +2,7 @@
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useId } from "react";
-import { REGION_LABELS, type Region } from "@/lib/regions";
-
-const TABS: Region[] = ["kalbar", "kalteng"];
+import { REGION_LABELS, REGION_TABS, type Region } from "@/lib/regions";
 
 export function RegionTabs({
   value,
@@ -14,20 +12,32 @@ export function RegionTabs({
   onChange: (v: Region) => void;
 }) {
   const id = useId();
-  const dataState = value === "kalteng" ? "on" : "off";
+  const activeIndex = REGION_TABS.indexOf(value);
+  const count = REGION_TABS.length;
 
   return (
     <div className="inline-flex w-full rounded-lg bg-input/50 p-0.5">
       <RadioGroup
         value={value}
         onValueChange={(v) => onChange(v as Region)}
-        className="group relative inline-grid w-full grid-cols-[1fr_1fr] items-center gap-0 text-sm font-medium after:absolute after:inset-y-0 after:w-1/2 after:rounded-md after:bg-background after:shadow-sm after:shadow-black/5 after:outline-offset-2 after:transition-transform after:duration-300 after:[transition-timing-function:cubic-bezier(0.16,1,0.3,1)] has-[:focus-visible]:after:outline has-[:focus-visible]:after:outline-2 has-[:focus-visible]:after:outline-ring/70 data-[state=off]:after:translate-x-0 data-[state=on]:after:translate-x-full"
-        data-state={dataState}
+        className="group relative inline-grid w-full grid-flow-col auto-cols-fr items-center gap-0 text-sm font-medium"
+        style={{ gridTemplateColumns: `repeat(${count}, 1fr)` }}
       >
-        {TABS.map((region) => (
+        {/* Sliding indicator (real element so we can animate to N tabs) */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 rounded-md bg-background shadow-sm shadow-black/5 outline-offset-2 transition-transform duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]"
+          style={{
+            width: `${100 / count}%`,
+            transform: `translateX(${activeIndex * 100}%)`,
+          }}
+        />
+        {REGION_TABS.map((region, i) => (
           <label
             key={region}
-            className="relative z-10 inline-flex h-full min-w-8 cursor-pointer select-none items-center justify-center whitespace-nowrap px-4 transition-colors group-data-[state=on]:text-muted-foreground/70"
+            className={`relative z-10 inline-flex h-full min-w-0 cursor-pointer select-none items-center justify-center whitespace-nowrap px-3 transition-colors ${
+              i === activeIndex ? "text-foreground" : "text-muted-foreground/70"
+            }`}
           >
             {REGION_LABELS[region]}
             <RadioGroupItem

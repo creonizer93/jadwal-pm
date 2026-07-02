@@ -9,7 +9,7 @@ interface PICItemProps {
   done: number;
   complete: boolean;
   submitted: boolean;
-  region: "kalbar" | "kalteng";
+  region: "kalbar" | "kalteng" | "kalsel";
 }
 
 function getInitials(name: string): string {

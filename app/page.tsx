@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import StepPills from "@/components/StepPills";
 import PICItem from "@/components/PICItem";
 import { RegionTabs } from "@/components/RegionTabs";
-import { parseRegion, REGION_LABELS, type Region } from "@/lib/regions";
+import { parseRegion, REGION_LABELS, REGION_TABS, type Region } from "@/lib/regions";
 
 interface PICStatus {
   name: string;
@@ -38,19 +38,16 @@ function HomePage() {
     async (isRefresh = false) => {
       if (isRefresh) setRefreshing(true);
       try {
-        const titleRes = await fetch("/api/title");
-        if (titleRes.ok) {
-          const titleData = await titleRes.json();
-          setTitle(titleData.title);
-        }
-
-        const picRes = await fetch(`/api/pic-status?region=${region}`);
-        if (!picRes.ok) {
-          const errData = await picRes.json();
+        const res = await fetch(`/api/dashboard?region=${region}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          const errData = await res.json();
           throw new Error(errData.error || "Gagal memuat data PIC");
         }
-        const picData: PICStatus[] = await picRes.json();
-        setPics(picData);
+        const data: { title: string; pics: PICStatus[] } = await res.json();
+        setTitle(data.title);
+        setPics(data.pics);
         setError(null);
       } catch (err: unknown) {
         setError((err as Error).message);
@@ -63,8 +60,11 @@ function HomePage() {
   );
 
   useEffect(() => {
-    setLoading(true);
+    // Keep previous data on region switch; only full skeleton on first load.
+    if (pics.length) setRefreshing(true);
+    else setLoading(true);
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchData]);
 
   // Pull-to-refresh via touch
@@ -321,7 +321,7 @@ function HomePage() {
               Pilih region untuk di-export (xlsx, kolom terpisah).
             </p>
             <div className="flex flex-col gap-3">
-              {(["kalbar", "kalteng"] as Region[]).map((r) => (
+              {REGION_TABS.map((r) => (
                 <button
                   key={r}
                   onClick={() => handleExport(r)}
